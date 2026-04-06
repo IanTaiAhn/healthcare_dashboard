@@ -67,63 +67,78 @@ This project builds that tool.
 
 ### 3.1 FRED API (Primary)
 
-All series are pulled via the `fredapi` Python library using a FRED API key stored as an environment variable (`FRED_API_KEY`).
+All series are pulled via the `fredapi` Python library using a FRED API key stored as an environment variable (`FRED_API_KEY`). **All series IDs below have been manually verified against the FRED website as of April 2026.**
 
 #### Utah-Specific Series
 
-| Series ID | Description | Frequency | Notes |
-|-----------|-------------|-----------|-------|
-| `UTNAN` | All Employees: Total Nonfarm in Utah | Monthly | Baseline employment, SA, back to 1939 |
-| `UTEDUH` | All Employees: Education & Health Services in Utah | Monthly | **Discontinued March 2022** — see data gap handling |
-| `UTUR` | Unemployment Rate in Utah | Monthly | Key labor market slack indicator |
-| `LBSSA49` | Labor Force Participation Rate for Utah | Monthly | Structural labor availability signal |
-| `UTCEMPLOY` | Covered Employment in Utah | Weekly | High-frequency leading signal |
-| `ICSA` | Initial Jobless Claims (National) | Weekly | National proxy for labor market direction |
-| `UTPCEHLTHCARE` | Personal Consumption Expenditures: Healthcare — Utah | Annual | Demand-side context; low frequency |
+| Series ID | Description | Frequency | Verified Status |
+|-----------|-------------|-----------|-----------------|
+| `UTNA` | All Employees: Total Nonfarm in Utah | Monthly | ✅ Active — SA version, prefer for modeling |
+| `UTNAN` | All Employees: Total Nonfarm in Utah | Monthly | ✅ Active — NSA version, Dec 2025: 1,791.7k |
+| `UTEDUH` | All Employees: Ed & Health Services (Private) in Utah | Monthly | ✅ **Active and current** — Dec 2025: 257.7k, SA |
+| `UTEDUHN` | All Employees: Ed & Health Services in Utah | Monthly | ✅ Active — NSA version of UTEDUH |
+| `SMU49000006562100001SA` | Ambulatory Health Care Services in Utah | Monthly | ✅ Active — Dec 2025: 87.7k, SA. Key subsector. |
+| `SMS49000006562000001` | Health Care & Social Assistance in Utah | Monthly | ✅ Active — NSA subsector series |
+| `UTURN` | Unemployment Rate in Utah | Monthly | ✅ Active — **correct ID is UTURN not UTUR** |
+| `LBSSA49` | Labor Force Participation Rate for Utah | Monthly | ✅ Active, SA. NSA version: `LBSNSA49` |
+| `UTICLAIMS` | Initial Claims in Utah | Weekly | ✅ Active — Utah-specific, use instead of national ICSA |
+| `UTCCLAIMS` | Continued Claims in Utah | Weekly | ✅ Active — pairs with initial claims |
+| `UTCEMPLOY` | Covered Employment in Utah | Weekly | ✅ Active — updated Jan 2026 |
+| `UTPCEHLTHCARE` | PCE: Healthcare — Utah | Annual | ✅ Active — annual only, context use only |
+| `SMU49000000500000003` | Avg Hourly Earnings: All Private — Utah | Monthly | ✅ Active — Utah-specific wage baseline |
 
-#### National Healthcare Series (Used as Leading Indicators)
+#### National Healthcare Series (Leading Indicators)
 
-| Series ID | Description | Frequency | Notes |
-|-----------|-------------|-----------|-------|
-| `CES6562000001` | All Employees: Healthcare & Social Assistance | Monthly | Broad healthcare employment signal |
-| `CES6562000101` | All Employees: Healthcare (excl. social assistance) | Monthly | Cleaner healthcare-specific signal |
-| `CES6562160001` | All Employees: Home Health Care Services | Monthly | Fast-growing subsector, useful leading signal |
-| `JTS6200000000000000JOL` | Job Openings: Healthcare & Social Assistance (JOLTS) | Monthly | Demand signal — unfilled positions |
-| `JTS6200000000000000QUR` | Quit Rate: Healthcare & Social Assistance (JOLTS) | Monthly | **Key stress indicator** — high quits = tight market |
-| `JTS6200000000000000HIR` | Hire Rate: Healthcare & Social Assistance (JOLTS) | Monthly | Supply/demand balance indicator |
-| `CES6562000003` | Avg Hourly Earnings: Healthcare & Social Assistance | Monthly | Wage pressure — lagging but reliable |
-| `ECIALLCIV` | Employment Cost Index: Civilian Workers | Quarterly | Broader compensation cost pressure |
+| Series ID | Description | Frequency | Verified Status |
+|-----------|-------------|-----------|-----------------|
+| `CES6562000001` | All Employees: Healthcare & Social Assistance | Monthly | ✅ Active — Jan 2026, SA |
+| `CES6562000101` | All Employees: Healthcare (excl. social assistance) | Monthly | ✅ Active, SA |
+| `CES6562160001` | All Employees: Home Health Care Services | Monthly | ✅ Active, SA |
+| `JTS6200JOL` | Job Openings Rate: Healthcare & Social Assistance (SA) | Monthly | ✅ Active — **corrected from original doc** |
+| `JTS6200JOR` | Job Openings Level: Healthcare & Social Assistance (SA) | Monthly | ✅ Active — level in thousands |
+| `JTS6200QUR` | Quit Rate: Healthcare & Social Assistance (SA) | Monthly | ✅ Active — **key stress indicator** |
+| `JTS6200HIL` | Hires Level: Healthcare & Social Assistance (SA) | Monthly | ✅ Active |
+| `CES6500000003` | Avg Hourly Earnings: Private Ed & Health Services | Monthly | ✅ Active — best available national wage proxy |
+| `ECIALLCIV` | Employment Cost Index: Civilian Workers | Quarterly | ✅ Active |
+
+> **⚠️ JOLTS ID Correction:** The original draft listed `JTS6200000000000000JOL` etc. — these IDs do not exist on FRED. The correct format is `JTS6200JOL`, `JTS6200QUR`, `JTS6200HIL`. The `JTS` prefix = seasonally adjusted; `JTU` prefix = not seasonally adjusted. Use SA (`JTS`) versions for modeling.
+
+> **⚠️ Wage Series Correction:** `CES6562000003` listed in the original draft does not exist. The correct series for average hourly earnings in the healthcare/education supersector is `CES6500000003`.
 
 #### Macro Context Series
 
-| Series ID | Description | Frequency | Notes |
-|-----------|-------------|-----------|-------|
-| `UNRATE` | National Unemployment Rate | Monthly | Macro backdrop |
-| `CIVPART` | Labor Force Participation Rate (National) | Monthly | Structural comparison to Utah |
-| `CPIAUCSL` | Consumer Price Index (All Urban) | Monthly | Inflation context for real wage analysis |
-| `FEDFUNDS` | Federal Funds Rate | Monthly | Affects health system borrowing costs |
+| Series ID | Description | Frequency | Verified Status |
+|-----------|-------------|-----------|-----------------|
+| `UNRATE` | National Unemployment Rate | Monthly | ✅ Active |
+| `CIVPART` | Labor Force Participation Rate (National) | Monthly | ✅ Active |
+| `CPIAUCSL` | Consumer Price Index (All Urban, SA) | Monthly | ✅ Active |
+| `FEDFUNDS` | Federal Funds Rate | Monthly | ✅ Active |
+| `ICSA` | Initial Claims (National, SA) | Weekly | ✅ Active — keep as national context alongside `UTICLAIMS` |
 
 ### 3.2 Utah Department of Workforce Services (Secondary)
 
 **URL:** `https://jobs.utah.gov/wi/`
 
-The DWS publishes monthly employment situation press releases with Utah-specific healthcare employment figures. Since `UTEDUH` was discontinued in March 2022, this source fills the gap for recent Utah healthcare employment data.
+The DWS publishes monthly employment situation press releases with Utah-specific sector breakdowns. Now that `UTEDUH` is confirmed active on FRED, DWS serves primarily as a cross-validation source rather than a data gap filler.
 
-- Data format: PDF press releases + the Utah Economic Data Viewer tool
+- Data format: PDF press releases + Utah Economic Data Viewer tool
 - Update cadence: Monthly
-- Integration approach: Manual supplementation initially; automated scraping considered for v2
+- Integration approach: Manual cross-validation during EDA; automated scraping deferred to v2
 
-### 3.3 Data Gap: UTEDUH Discontinuation
+### 3.3 UTEDUH Status — Correction to Original Draft
 
-`UTEDUH` (Utah Education & Health Services Employment) stopped updating in April 2022. This is the most directly relevant Utah-specific series and its discontinuation is a significant constraint.
+**The original draft incorrectly stated that `UTEDUH` was discontinued in March 2022. This was wrong.**
 
-**Handling strategy:**
-1. Use `UTEDUH` for the historical baseline (1990–2022)
-2. Estimate post-2022 Utah healthcare employment using a **ratio method**: apply the Utah healthcare employment share (from the pre-2022 period) to total nonfarm `UTNAN` to extend the series
-3. Cross-validate estimates against Utah DWS press release figures
-4. Flag the imputed portion clearly in the dashboard with a methodology note
+During series verification, `UTEDUH` was confirmed to be fully active and updating as of January 28, 2026 (latest value: December 2025 = 257.7 thousand employees, seasonally adjusted). The ratio imputation method described in the original draft is not needed and has been removed.
 
-This limitation is worth documenting and even writing about — it's a real data engineering problem that demonstrates statistical maturity.
+**Key clarifications on UTEDUH:**
+- Full title: "All Employees: Education and Health Services: **Private** Education and Health Services in Utah" — covers private sector only, which is appropriate for this analysis
+- SA version: `UTEDUH` — use for modeling
+- NSA version: `UTEDUHN` — use for seasonal decomposition validation
+- History goes back to January 1990
+
+**New subseries discovered during verification:**
+`SMU49000006562100001SA` — Ambulatory Health Care Services in Utah — covers clinics, physician offices, and outpatient services. This is arguably the most relevant subsector for the target user (mid-size outpatient health systems and clinic chains) and should be featured prominently in the dashboard.
 
 ---
 
@@ -183,7 +198,20 @@ The 2020–2021 COVID shock creates structural breaks in nearly every series in 
 
 ## 5. Feature Engineering
 
-### 5.1 Stationarity Processing
+### 5.1 Mixed Frequency Alignment
+
+Before any feature engineering, all series are aligned to a common monthly frequency. This is a required step given the mix of weekly, monthly, quarterly, and annual series in scope.
+
+| Source Frequency | Alignment Method | Rationale |
+|-----------------|------------------|-----------|
+| Weekly (UTICLAIMS, UTCCLAIMS, UTCEMPLOY) | Last observation of the month | Consistent with how BLS handles claims in monthly context |
+| Monthly | No change | Native frequency |
+| Quarterly (ECIALLCIV) | Forward-fill | Carry last known value forward until next release |
+| Annual (UTPCEHLTHCARE) | Forward-fill | Context use only, not a model input |
+
+All alignment is done before feature engineering so every derived feature operates on a consistent monthly index. The alignment decisions are documented in `preprocessing_config.yaml`.
+
+### 5.2 Stationarity Processing
 
 Most employment and wage series are non-stationary (they trend upward over time). Before modeling:
 
@@ -192,9 +220,48 @@ Most employment and wage series are non-stationary (they trend upward over time)
 3. Series that remain non-stationary after first differencing are second-differenced
 4. Log transformation applied to level series before differencing to stabilize variance
 
-The stationarity decisions for each series will be documented in a `preprocessing_config.yaml` file in the repo, making them transparent and reproducible.
+The stationarity decisions for each series are documented in `preprocessing_config.yaml` in the repo, making them transparent, reproducible, and editable without touching code.
 
-### 5.2 Derived Features
+**`preprocessing_config.yaml` schema:**
+
+```yaml
+series:
+  - id: UTEDUH
+    label: "Utah Ed & Health Services Employment"
+    frequency: monthly
+    seasonal_adjustment: SA
+    log_transform: true          # Apply log before differencing to stabilize variance
+    differencing: 1              # Number of differences to achieve stationarity (from ADF test)
+    adf_pvalue: 0.031            # Recorded ADF p-value after differencing (populated during EDA)
+    role: target                 # target | feature | context
+    include_in_model: true
+
+  - id: JTS6200QUR
+    label: "Quit Rate: Healthcare & Social Assistance"
+    frequency: monthly
+    seasonal_adjustment: SA
+    log_transform: false
+    differencing: 0              # Already stationary as a rate
+    adf_pvalue: 0.004
+    role: feature
+    include_in_model: true
+    lag_months: [1, 2, 3]        # Lag windows to construct as features
+
+  - id: ECIALLCIV
+    label: "Employment Cost Index: Civilian"
+    frequency: quarterly
+    seasonal_adjustment: SA
+    monthly_alignment: forward_fill
+    log_transform: false
+    differencing: 1
+    adf_pvalue: null             # To be populated during EDA
+    role: feature
+    include_in_model: true
+```
+
+This file is populated during the EDA notebooks before any production code is written. The `adf_pvalue` fields are filled in from notebook output and committed to the repo, providing a permanent record of the stationarity analysis decisions.
+
+### 5.3 Derived Features
 
 Beyond the raw series, the following derived features will be constructed:
 
@@ -209,11 +276,11 @@ Beyond the raw series, the following derived features will be constructed:
 | `labor_market_tightness_index` | Composite of quit rate + openings rate + hire rate | Summary of JOLTS pressure signals |
 | `covid_shock` | Binary: 1 for March 2020 – September 2021 | Structural break control |
 
-### 5.3 Lag Features
+### 5.4 Lag Features
 
 For forecasting 6 months forward, lag features are constructed for key series at 1, 3, and 6 month lags. The quit rate and job openings series historically lead employment and wage outcomes by 2–4 months, making them particularly valuable as lagged predictors.
 
-### 5.4 Seasonal Decomposition
+### 5.5 Seasonal Decomposition
 
 Healthcare employment has strong seasonal patterns (flu season, summer hiring cycles, year-end budget effects). STL decomposition (Seasonal-Trend decomposition using LOESS) is applied to extract:
 - **Trend component** — for the forecast target
@@ -228,12 +295,12 @@ Healthcare employment has strong seasonal patterns (flu season, summer hiring cy
 
 The primary forecast target is: **Utah healthcare employment (monthly, 6-month horizon)**
 
-Because `UTEDUH` is discontinued, the target series is the extended/imputed series described in Section 3.3, with uncertainty bounds that account for the imputation.
+`UTEDUH` (Utah Education & Health Services Employment, Private, SA) is the primary series, confirmed active and updating monthly through December 2025. No imputation is required.
 
 Secondary forecast targets (each modeled independently):
-- Healthcare quit rate (national, used as a Utah proxy)
-- Average hourly earnings in healthcare (national)
-- Utah unemployment rate
+- Healthcare quit rate (national, used as a Utah proxy) — `JTS6200QUR`
+- Average hourly earnings in healthcare/education — `CES6500000003`
+- Utah unemployment rate — `UTURN`
 
 ### 6.2 Model Candidates
 
@@ -259,12 +326,20 @@ Designed for business time series with strong seasonality and holiday effects.
 - Produces confidence intervals natively
 - Less flexible for incorporating exogenous variables than SARIMAX but easier to tune
 
-#### Model 3: VAR (Vector Autoregression)
-Models multiple series jointly to capture lead-lag relationships.
+#### Model 3: VAR (Vector Autoregression) — Exploratory Only
 
-- Captures the relationship between national healthcare JOLTS series and Utah employment
-- More complex to tune and explain but potentially more accurate if cross-series dynamics matter
-- Forecast intervals derived via bootstrap
+Models multiple series jointly to capture lead-lag relationships between variables.
+
+**Status: exploratory notebook only — not deployed to production API in v1.**
+
+VAR is included in the comparison notebooks because it can theoretically capture the lagged relationship between national JOLTS signals and Utah employment outcomes. However, several practical constraints make it unsuitable as the primary production model:
+
+- Requires all included series to be jointly stationary — with the mix of differenced and level series in this project, satisfying this constraint for 5+ series simultaneously is non-trivial
+- Parameter count grows as O(k²p) where k = number of series and p = lag order — overfitting risk is real with monthly data going back to 2010
+- The COVID structural break creates severe instability in VAR estimates unless handled carefully, requiring manual intervention that undermines automation
+- Forecast intervals require bootstrap simulation rather than being analytically derived, adding computational overhead
+
+If VAR outperforms SARIMAX meaningfully in the backtesting notebooks, it can be revisited for v2 with a more careful specification. For v1, SARIMAX is the deployed model and Prophet is the secondary comparison.
 
 ### 6.3 Model Evaluation
 
@@ -281,11 +356,44 @@ Models multiple series jointly to capture lead-lag relationships.
 
 **Decision rule:** The model with the best 6-month MAE on the 2022–2024 out-of-sample period is used in production. If no model beats naive seasonal at 6 months, the dashboard uses naive seasonal with honest caveats.
 
-### 6.4 Retraining Schedule
+### 6.4 Model Serialization & Serving
 
-- Model retrained monthly when new FRED data is published
-- Retrained model is evaluated against the naive baseline before deployment
-- If the new model is worse than the previous version, the previous version is retained and an alert is logged
+Trained models are persisted to disk using `joblib` and loaded at API startup. Models are **never retrained on a live request** — inference always reads from the persisted artifact.
+
+**Serialization approach:**
+
+```
+backend/models/artifacts/
+├── sarimax_current.joblib       # Currently deployed model
+├── sarimax_previous.joblib      # Previous version — kept for rollback
+├── prophet_current.joblib       # Prophet comparison model
+└── model_metadata.json          # Version, training date, MAE, naive baseline MAE
+```
+
+`model_metadata.json` structure:
+```json
+{
+  "model_type": "sarimax",
+  "trained_at": "2026-04-01T06:00:00Z",
+  "training_window": "2010-01 to 2026-03",
+  "out_of_sample_mae_6m": 3.2,
+  "naive_baseline_mae_6m": 4.1,
+  "beats_baseline": true,
+  "fred_series_last_updated": {
+    "UTEDUH": "2026-01-28",
+    "JTS6200QUR": "2026-03-11"
+  }
+}
+```
+
+At FastAPI startup, the model artifact and metadata are loaded into memory once and held for the lifetime of the process. The `/api/metadata` endpoint serves the metadata directly so the frontend can display data freshness and model version to the user.
+
+### 6.5 Retraining Schedule
+
+- Model retrained monthly, triggered by APScheduler job on the first Monday of each month
+- Before promotion to `sarimax_current.joblib`, the new model must beat both the naive baseline and the previous deployed model on 6-month MAE
+- If either condition fails, the existing model is retained, the new artifact is saved as `sarimax_candidate.joblib` for manual review, and a warning is logged
+- Previous version is always preserved as `sarimax_previous.joblib` to enable one-step rollback
 
 ---
 
@@ -294,12 +402,34 @@ Models multiple series jointly to capture lead-lag relationships.
 ### Section 1: Headline — Workforce Stress Signal
 
 **What it shows:**
-A single directional indicator with three states: **Tightening**, **Stable**, **Easing**. Derived from the composite of quit rate, job openings rate, and wage growth, compared to historical norms for Utah.
+A single directional indicator with three states: **Tightening**, **Stable**, **Easing**.
+
+**How it is calculated — explicit definition:**
+
+The signal is rules-based, derived from three inputs each expressed as a percentile rank relative to their 2010–2019 pre-pandemic baseline distribution:
+
+1. **Quit rate percentile** — `JTS6200QUR` current value ranked against 2010–2019 monthly values
+2. **Job openings rate percentile** — `JTS6200JOL` current value ranked against 2010–2019 monthly values
+3. **Utah healthcare wage growth** — `UTEDUH`-implied wage pressure via `CES6500000003` YoY % change, ranked against 2010–2019 baseline
+
+These three percentiles are averaged into a single **Composite Stress Score (CSS)** between 0 and 100.
+
+| CSS Range | Signal State | Color | Interpretation |
+|-----------|-------------|-------|----------------|
+| CSS ≥ 67 | 🔴 Tightening | Red | Labor market is under significant stress vs. historical norms — accelerate retention efforts, review compensation |
+| 33 ≤ CSS < 67 | 🟡 Stable | Yellow | Conditions are within historical norms — maintain current workforce strategy |
+| CSS < 33 | 🟢 Easing | Green | Labor market is loosening — favorable hiring conditions, reduce contract labor reliance |
+
+**Why rules-based rather than model-derived:**
+The signal is deliberately rules-based rather than derived from the forecast model output. This makes it auditable, explainable to a non-technical user, and stable — it doesn't change every time the model is retrained. The forecast model informs the *direction* panel (is the CSS trending up or down?) but the current state determination uses the rules above.
+
+**Directional annotation:**
+Alongside the current state, a secondary indicator shows whether the CSS has been rising, flat, or falling over the trailing 3 months. This gives the user a sense of momentum without requiring them to read a chart.
 
 **Plain language output example:**
-> *"Utah healthcare labor conditions are currently tightening. Quit rates remain elevated above pre-2020 norms and job openings in healthcare have increased for the third consecutive month. Organizations should expect continued wage pressure and longer time-to-fill for clinical roles over the next 2–3 quarters."*
+> *"Utah healthcare labor conditions are currently Tightening (Stress Score: 74/100). Quit rates and job openings in healthcare remain elevated relative to pre-2020 norms. Wage growth is tracking at the 81st percentile of historical observations. Organizations should expect continued pressure on clinical staffing costs over the next two quarters."*
 
-**Why this matters:** A busy HR Director needs a signal, not a spreadsheet. This is the first thing they see.
+**Why this matters:** A busy HR Director needs a signal, not a spreadsheet. This is the first thing they see. The explicit definition also means any technically minded reviewer — a hiring manager, a peer reviewing your GitHub — can immediately understand and critique the methodology, which is a feature not a weakness.
 
 ---
 
@@ -331,12 +461,13 @@ A multi-panel view of the key JOLTS indicators over a 36-month trailing window:
 ### Section 4: Utah Employment Trend
 
 **What it shows:**
-- Utah healthcare employment (extended series), trailing 5 years
+- Utah healthcare employment (`UTEDUH`), trailing 5 years
+- Ambulatory care subsector (`SMU49000006562100001SA`) overlaid as a secondary line — more granular signal for outpatient-focused organizations
 - Seasonal decomposition: trend vs. seasonal component
-- 6-month forward forecast with confidence band
-- Annotation marking the UTEDUH data gap and imputation period
+- 6-month forward forecast with 80% confidence band
+- Annotation marking where the forecast begins (dashed vertical line)
 
-**Note on transparency:** The imputation boundary is visually marked with a dashed line and a tooltip explaining the methodology. This is a feature, not a bug — it demonstrates rigor.
+**Note on transparency:** The chart distinguishes historical actuals from forecast values with a clear visual break. The ambulatory care overlay is labeled so users understand they are seeing two distinct series on the same chart.
 
 ---
 
@@ -351,7 +482,9 @@ A clean 6-row table — one row per forecast month — showing:
 | Jun 2026 | 143,100 | 140,500 | 145,700 | 3.3% | 🟡 Stable |
 | ... | | | | | |
 
-**Why a table:** Executives often want to screenshot something and put it in a presentation. A clean table is more useful than a chart for that purpose.
+> *Note: Values above are illustrative examples only — not real forecasts.*
+
+**Why a table:** Executives often want to screenshot something and drop it into a presentation or budget document. A clean table is more portable and actionable than a chart for that purpose.
 
 ---
 
@@ -359,11 +492,12 @@ A clean 6-row table — one row per forecast month — showing:
 
 **What it shows:**
 A collapsible section (not buried in a separate page) containing:
-- List of FRED series used with series IDs and last update dates
-- Description of the stationarity treatment applied to each series
-- Model selected and its out-of-sample performance vs. naive baseline
-- Explanation of the UTEDUH data gap and imputation methodology
-- Data freshness timestamp
+- List of FRED series used with verified series IDs and last update dates
+- Description of the frequency alignment decisions (weekly → monthly aggregation)
+- Description of the stationarity treatment applied to each series (references `preprocessing_config.yaml`)
+- Model selected, its order parameters, and out-of-sample MAE vs. naive baseline
+- Composite Stress Score calculation methodology — inputs, baseline period, thresholds
+- Data freshness timestamp for each series
 
 **Why this matters:** This is what separates a credible analytical tool from a black box. A healthcare CFO or an analytically curious hiring manager will look for this. It also demonstrates your statistical maturity directly in the product.
 
@@ -408,14 +542,55 @@ GET /api/metadata                  — data freshness, model version, series upd
 
 ### 8.4 Environment Variables
 
+`.env.example` — commit this file; never commit `.env`:
+
 ```bash
+# FRED API
 FRED_API_KEY=your_fred_api_key_here
-DATABASE_URL=sqlite:///./data/workforce.db   # or postgres URL in prod
-ENV=development                              # or production
-MODEL_RETRAIN_CRON="0 6 * * 1"             # Mondays at 6am
+
+# Database
+DATABASE_URL=sqlite:///./data/workforce.db   # Local dev
+# DATABASE_URL=postgresql://user:pass@host/db  # Production on Render
+
+# App
+ENV=development                              # development | production
+PORT=8000
+
+# Scheduling
+MODEL_RETRAIN_CRON="0 6 1 * *"             # 6am on the 1st of each month
+
+# CORS — comma-separated list of allowed frontend origins
+# Dev: include localhost; prod: GitHub Pages URL only
+CORS_ORIGINS=http://localhost:5173,https://yourusername.github.io
 ```
 
-### 8.5 Deployment Architecture
+### 8.5 CORS Configuration
+
+Because the React frontend is hosted on GitHub Pages and the FastAPI backend is on Render, cross-origin requests require explicit CORS configuration. Without this, the browser will block every API call from the frontend silently.
+
+**FastAPI CORS setup in `main.py`:**
+
+```python
+from fastapi.middleware.cors import CORSMiddleware
+import os
+
+origins = os.getenv("CORS_ORIGINS", "").split(",")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,        # Explicit list — never use ["*"] in production
+    allow_credentials=False,      # No auth cookies needed for read-only public API
+    allow_methods=["GET"],        # Read-only API — GET only
+    allow_headers=["*"],
+)
+```
+
+**Key points:**
+- `CORS_ORIGINS` is set as an environment variable on Render — update it when the GitHub Pages URL is known
+- Using `["*"]` for `allow_origins` works but is sloppy for a deployed API — explicit origins are better practice
+- `allow_credentials=False` is correct here since there is no authentication in v1
+
+### 8.6 Deployment Architecture
 
 ```
 GitHub (main branch)
@@ -440,6 +615,7 @@ utah-healthcare-workforce/
 │
 ├── backend/
 │   ├── pyproject.toml              # uv-managed dependencies
+│   ├── .env.example                # Template — copy to .env, never commit .env
 │   ├── main.py                     # FastAPI app entry point
 │   ├── api/
 │   │   ├── routes/
@@ -449,20 +625,23 @@ utah-healthcare-workforce/
 │   ├── data/
 │   │   ├── ingestion.py            # FRED API pull logic
 │   │   ├── validation.py           # Data quality checks
-│   │   └── storage.py              # SQLite read/write
+│   │   └── storage.py              # SQLite read/write with revision tracking
 │   ├── features/
-│   │   ├── preprocessing.py        # Stationarity, differencing, transforms
+│   │   ├── preprocessing.py        # Frequency alignment, stationarity, differencing
 │   │   ├── engineering.py          # Derived features, lag construction
-│   │   └── preprocessing_config.yaml  # Stationarity decisions per series
+│   │   └── preprocessing_config.yaml  # Per-series: log_transform, differencing, lags, ADF p-values
 │   ├── models/
 │   │   ├── sarimax_model.py
 │   │   ├── prophet_model.py
-│   │   ├── var_model.py
 │   │   ├── baseline.py             # Naive seasonal baseline
-│   │   ├── evaluate.py             # Walk-forward validation, MAE/MAPE
-│   │   └── registry.py             # Model versioning, selection logic
+│   │   ├── evaluate.py             # Walk-forward validation, MAE/MAPE/coverage
+│   │   ├── registry.py             # Model promotion logic, version management
+│   │   └── artifacts/              # Serialized model files (gitignored except metadata)
+│   │       ├── sarimax_current.joblib
+│   │       ├── sarimax_previous.joblib
+│   │       └── model_metadata.json
 │   └── scheduler/
-│       └── jobs.py                 # APScheduler jobs: ingest, retrain
+│       └── jobs.py                 # APScheduler: ingest, retrain, promote
 │
 ├── frontend/
 │   ├── package.json
@@ -470,7 +649,7 @@ utah-healthcare-workforce/
 │   └── src/
 │       ├── App.jsx
 │       ├── components/
-│       │   ├── HeadlineSignal.jsx
+│       │   ├── HeadlineSignal.jsx      # CSS score + Tightening/Stable/Easing
 │       │   ├── LeadingIndicatorsPanel.jsx
 │       │   ├── WagePressurePanel.jsx
 │       │   ├── EmploymentTrendPanel.jsx
@@ -479,18 +658,21 @@ utah-healthcare-workforce/
 │       ├── hooks/
 │       │   └── useForecastData.js
 │       └── api/
-│           └── client.js
+│           └── client.js           # Axios instance with base URL from env var
 │
 ├── notebooks/
-│   ├── 01_data_exploration.ipynb
-│   ├── 02_stationarity_analysis.ipynb
-│   ├── 03_model_comparison.ipynb
-│   └── 04_backtesting_results.ipynb
+│   ├── 01_data_exploration.ipynb       # Pull all series, check shapes and date ranges
+│   ├── 02_stationarity_analysis.ipynb  # ADF tests, populate preprocessing_config.yaml
+│   ├── 03_feature_validation.ipynb     # Correlation/lag analysis — do features actually predict target?
+│   ├── 04_model_comparison.ipynb       # SARIMAX vs Prophet vs naive baseline
+│   └── 05_backtesting_results.ipynb    # Walk-forward validation, MAE/MAPE, coverage plots
 │
 ├── .github/
 │   └── workflows/
 │       └── deploy.yml              # CI/CD: backend to Render, frontend to GH Pages
 │
+├── .env.example                    # Root-level for documentation clarity
+├── .gitignore                      # Must include: .env, *.joblib, data/*.db
 └── README.md
 ```
 
@@ -500,13 +682,17 @@ utah-healthcare-workforce/
 
 ### Data Limitations
 
-- **UTEDUH discontinued (2022):** The most directly relevant Utah healthcare employment series stopped updating. Post-2022 values are imputed using the ratio method described in Section 3.3. This introduces estimation uncertainty that is propagated into forecast confidence bands.
+- **No Utah-specific JOLTS data:** JOLTS quit rates, hire rates, and job openings are only available at the national level. National healthcare labor dynamics are used as proxies for Utah, which is a reasonable but imperfect assumption given Utah's faster-than-average population and employment growth. This is the single largest data gap remaining after series verification.
 
-- **No Utah-specific JOLTS data:** JOLTS quit rates, hire rates, and job openings are only available at the national level. National healthcare labor dynamics are used as proxies for Utah, which is a reasonable but imperfect assumption given Utah's faster-than-average population and employment growth.
+- **UTEDUH covers private sector only:** `UTEDUH` covers private education and health services employment in Utah. Government-employed healthcare workers (VA hospitals, state health departments, university health systems) are excluded. For most target users — mid-size private health systems and clinic chains — this is appropriate, but it should be disclosed.
 
-- **Annual PCE healthcare data:** The Utah healthcare consumption expenditure series is annual, limiting its use as a real-time demand signal. Used for contextual annual trend analysis only.
+- **Ambulatory subseries SA methodology:** `SMU49000006562100001SA` is seasonally adjusted by the St. Louis Fed using statsmodels X-13ARIMA-SEATS, not by the BLS directly. Occasionally when data updates are insufficient to trigger seasonal adjustment, the NSA values are substituted. The pipeline should check for this and flag it when it occurs.
 
-- **Revision risk:** FRED series are subject to revision. The pipeline should track and log revisions rather than silently overwriting historical values.
+- **Annual PCE healthcare data:** `UTPCEHLTHCARE` is annual, limiting its use as a real-time demand signal. Used for contextual annual trend analysis only.
+
+- **Mixed frequency alignment:** Series in this project span weekly (UTICLAIMS, UTCCLAIMS, UTCEMPLOY), monthly (most series), and quarterly/annual (ECI, PCE) frequencies. All series are aligned to monthly frequency for modeling. Weekly series are aggregated to monthly using end-of-month observation. Quarterly ECI is forward-filled at monthly frequency. Annual PCE is used only for context, not as a model input.
+
+- **Revision risk:** FRED series are subject to revision. The pipeline tracks and logs revisions by storing each pull with a timestamp rather than silently overwriting historical values. This enables detection of significant revisions that might affect model behavior.
 
 ### Model Limitations
 
