@@ -731,3 +731,5 @@ The following are explicitly out of scope for v1 but worth noting as natural ext
 *Document version: 0.1 | Last updated: April 2026 | Author: [Your Name]*
 
 *Data sources: Federal Reserve Bank of St. Louis (FRED), Utah Department of Workforce Services (DWS), Utah Health Workforce Information Center (HWIC)*
+
+# Pretty good introspection done. I think I do want to sink some time into a ML backend, infrastructe, and frontend to figure out where I really want to head.
