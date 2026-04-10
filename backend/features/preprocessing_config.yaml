@@ -1,0 +1,227 @@
+# ============================================================================
+# Utah Healthcare Workforce Intelligence — Series & Preprocessing Configuration
+# ============================================================================
+#
+# This file is the single source of truth for:
+#   1. Which FRED series are used
+#   2. How each series is preprocessed (log, differencing, alignment)
+#   3. Stationarity test results (populated during EDA notebooks)
+#   4. Role of each series in the modeling pipeline
+#
+# Populated by: notebooks/02_stationarity_analysis.ipynb
+# Consumed by:  backend/features/preprocessing.py, backend/features/engineering.py
+# ============================================================================
+
+baseline_period:
+  start: "2010-01"
+  end: "2019-12"
+
+covid_shock_period:
+  start: "2020-03"
+  end: "2021-09"
+
+forecast_horizon_months: 6
+
+series:
+
+  # ── Utah-Specific Employment ───────────────────────────────────────────────
+
+  - id: UTEDUH
+    label: "Utah Ed & Health Services Employment (Private, SA)"
+    frequency: monthly
+    seasonal_adjustment: SA
+    log_transform: true
+    differencing: 1
+    adf_pvalue: null        # TODO: populate in notebook 02
+    role: target
+    include_in_model: true
+    notes: "Primary forecast target. Dec 2025 = 257.7k"
+
+  - id: SMU49000006562100001SA
+    label: "Ambulatory Health Care Services in Utah (SA)"
+    frequency: monthly
+    seasonal_adjustment: SA
+    log_transform: true
+    differencing: 1
+    adf_pvalue: null
+    role: target_secondary
+    include_in_model: false
+    notes: "Key subsector for outpatient-focused orgs. Dec 2025 = 87.7k"
+
+  - id: UTNA
+    label: "All Employees: Total Nonfarm in Utah (SA)"
+    frequency: monthly
+    seasonal_adjustment: SA
+    log_transform: true
+    differencing: 1
+    adf_pvalue: null
+    role: feature
+    include_in_model: true
+    notes: "Used to compute healthcare_employment_share_ut"
+
+  - id: UTURN
+    label: "Unemployment Rate in Utah"
+    frequency: monthly
+    seasonal_adjustment: SA
+    log_transform: false
+    differencing: 0
+    adf_pvalue: null
+    role: feature
+    include_in_model: true
+    lag_months: [1, 3]
+
+  - id: LBSSA49
+    label: "Labor Force Participation Rate for Utah (SA)"
+    frequency: monthly
+    seasonal_adjustment: SA
+    log_transform: false
+    differencing: 1
+    adf_pvalue: null
+    role: context
+    include_in_model: false
+
+  - id: UTICLAIMS
+    label: "Initial Claims in Utah"
+    frequency: weekly
+    monthly_alignment: last_observation
+    seasonal_adjustment: NSA
+    log_transform: false
+    differencing: 1
+    adf_pvalue: null
+    role: feature
+    include_in_model: true
+    lag_months: [1, 2]
+
+  - id: UTCCLAIMS
+    label: "Continued Claims in Utah"
+    frequency: weekly
+    monthly_alignment: last_observation
+    seasonal_adjustment: NSA
+    log_transform: false
+    differencing: 1
+    adf_pvalue: null
+    role: context
+    include_in_model: false
+
+  - id: SMU49000000500000003
+    label: "Avg Hourly Earnings: All Private — Utah"
+    frequency: monthly
+    seasonal_adjustment: SA
+    log_transform: false
+    differencing: 1
+    adf_pvalue: null
+    role: feature
+    include_in_model: true
+
+  # ── National Healthcare Series (Leading Indicators) ────────────────────────
+
+  - id: CES6562000001
+    label: "All Employees: Healthcare & Social Assistance (National, SA)"
+    frequency: monthly
+    seasonal_adjustment: SA
+    log_transform: true
+    differencing: 1
+    adf_pvalue: null
+    role: context
+    include_in_model: false
+
+  - id: JTS6200JOL
+    label: "Job Openings Rate: Healthcare & Social Assistance (SA)"
+    frequency: monthly
+    seasonal_adjustment: SA
+    log_transform: false
+    differencing: 0
+    adf_pvalue: null
+    role: feature
+    include_in_model: true
+    lag_months: [1, 2, 3]
+    notes: "Key input to Composite Stress Score"
+
+  - id: JTS6200JOR
+    label: "Job Openings Level: Healthcare & Social Assistance (SA)"
+    frequency: monthly
+    seasonal_adjustment: SA
+    log_transform: false
+    differencing: 1
+    adf_pvalue: null
+    role: feature
+    include_in_model: false
+    notes: "Level in thousands — used to compute openings-to-unemployed ratio"
+
+  - id: JTS6200QUR
+    label: "Quit Rate: Healthcare & Social Assistance (SA)"
+    frequency: monthly
+    seasonal_adjustment: SA
+    log_transform: false
+    differencing: 0
+    adf_pvalue: null
+    role: feature
+    include_in_model: true
+    lag_months: [1, 2, 3]
+    notes: "Key stress indicator. Input to Composite Stress Score."
+
+  - id: JTS6200HIL
+    label: "Hires Level: Healthcare & Social Assistance (SA)"
+    frequency: monthly
+    seasonal_adjustment: SA
+    log_transform: false
+    differencing: 1
+    adf_pvalue: null
+    role: feature
+    include_in_model: true
+    lag_months: [1, 2]
+
+  - id: CES6500000003
+    label: "Avg Hourly Earnings: Private Ed & Health Services (National)"
+    frequency: monthly
+    seasonal_adjustment: SA
+    log_transform: false
+    differencing: 1
+    adf_pvalue: null
+    role: feature
+    include_in_model: true
+    notes: "Best available national wage proxy for healthcare"
+
+  - id: ECIALLCIV
+    label: "Employment Cost Index: Civilian Workers"
+    frequency: quarterly
+    monthly_alignment: forward_fill
+    seasonal_adjustment: SA
+    log_transform: false
+    differencing: 1
+    adf_pvalue: null
+    role: feature
+    include_in_model: true
+
+  # ── Macro Context ──────────────────────────────────────────────────────────
+
+  - id: UNRATE
+    label: "National Unemployment Rate"
+    frequency: monthly
+    seasonal_adjustment: SA
+    log_transform: false
+    differencing: 0
+    adf_pvalue: null
+    role: context
+    include_in_model: false
+
+  - id: CPIAUCSL
+    label: "Consumer Price Index (All Urban, SA)"
+    frequency: monthly
+    seasonal_adjustment: SA
+    log_transform: true
+    differencing: 1
+    adf_pvalue: null
+    role: feature
+    include_in_model: true
+    notes: "Used to compute real_wage_growth"
+
+  - id: FEDFUNDS
+    label: "Federal Funds Rate"
+    frequency: monthly
+    seasonal_adjustment: NSA
+    log_transform: false
+    differencing: 1
+    adf_pvalue: null
+    role: context
+    include_in_model: false

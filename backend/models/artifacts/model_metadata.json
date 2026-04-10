@@ -1,0 +1,10 @@
+{
+  "model_type": "sarimax",
+  "trained_at": null,
+  "training_window": null,
+  "out_of_sample_mae_6m": null,
+  "naive_baseline_mae_6m": null,
+  "beats_baseline": false,
+  "status": "not_trained",
+  "fred_series_last_updated": {}
+}

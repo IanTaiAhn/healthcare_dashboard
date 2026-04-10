@@ -1,0 +1,23 @@
+# render.yaml — Render Blueprint for one-click deploy
+# https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: utah-healthcare-workforce-api
+    runtime: python
+    region: oregon
+    plan: free
+    rootDir: backend
+    buildCommand: |
+      pip install uv
+      uv pip install --system -e .
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: FRED_API_KEY
+        sync: false  # Set manually in Render dashboard
+      - key: DATABASE_URL
+        value: sqlite:///./data/workforce.db
+      - key: ENV
+        value: production
+      - key: CORS_ORIGINS
+        sync: false  # Set to your GitHub Pages URL
