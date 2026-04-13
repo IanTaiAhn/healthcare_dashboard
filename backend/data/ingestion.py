@@ -12,8 +12,9 @@ from pathlib import Path
 import pandas as pd
 import yaml
 
-# from fredapi import Fred  # Uncomment when FRED_API_KEY is configured
-
+from fredapi import Fred  # Uncomment when FRED_API_KEY is configured
+from dotenv import load_dotenv
+load_dotenv()
 
 CONFIG_PATH = Path(__file__).parent.parent / "features" / "preprocessing_config.yaml"
 
@@ -33,8 +34,8 @@ def get_fred_client():
             "FRED_API_KEY not set. Copy .env.example to .env and add your key. "
             "Get a free key at https://fred.stlouisfed.org/docs/api/api_key.html"
         )
-    # return Fred(api_key=api_key)
-    raise NotImplementedError("Uncomment fredapi import and return when ready")
+    return Fred(api_key=api_key)
+    # raise NotImplementedError("Uncomment fredapi import and return when ready")
 
 
 def fetch_series(series_id: str, start_date: str = "2005-01-01") -> pd.Series:
@@ -48,9 +49,9 @@ def fetch_series(series_id: str, start_date: str = "2005-01-01") -> pd.Series:
     Returns:
         pandas Series indexed by date
     """
-    # fred = get_fred_client()
-    # return fred.get_series(series_id, observation_start=start_date)
-    raise NotImplementedError("Wire up FRED client")
+    fred = get_fred_client()
+    return fred.get_series(series_id, observation_start=start_date)
+    # raise NotImplementedError("Wire up FRED client")
 
 
 def fetch_all_series() -> dict[str, pd.Series]:
@@ -124,9 +125,13 @@ def generate_dummy_series() -> dict[str, pd.DataFrame]:
 
     return results
 
-
+## Code to test the dummy data generation
+# if __name__ == "__main__":
+#     # Quick test: generate dummy data
+#     dummy = generate_dummy_series()
+#     for sid, df in dummy.items():
+#         print(f"{sid}: {len(df)} rows, range [{df['value'].min():.1f}, {df['value'].max():.1f}]")
 if __name__ == "__main__":
-    # Quick test: generate dummy data
-    dummy = generate_dummy_series()
-    for sid, df in dummy.items():
-        print(f"{sid}: {len(df)} rows, range [{df['value'].min():.1f}, {df['value'].max():.1f}]")
+    series = fetch_all_series()
+    for sid, data in series.items():
+        print(f"{sid}: {len(data)} observations, latest={data.index.max().strftime('%Y-%m')}")
